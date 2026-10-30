@@ -1,0 +1,690 @@
+
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Weber State Registration Search</title>
+
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+
+    <style>
+        body {
+            background-color: #f5f5f5;
+            font-family: Arial, Helvetica, sans-serif;
+        }
+
+        .registration-container {
+            max-width: 900px;
+            margin: 40px auto;
+        }
+
+        .search-card {
+            background-color: white;
+            border: 1px solid #d6d6d6;
+            border-radius: 6px;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.08);
+        }
+
+        .search-body {
+            padding: 25px;
+        }
+
+        .form-label {
+            font-weight: 600;
+            margin-bottom: 6px;
+        }
+
+        .form-control {
+            min-height: 40px;
+        }
+
+        .autocomplete-container {
+            position: relative;
+        }
+
+        .autocomplete-results {
+            position: absolute;
+            left: 0;
+            right: 0;
+            top: 100%;
+            z-index: 1000;
+            background-color: white;
+            border: 1px solid #ced4da;
+            border-top: none;
+            display: none;
+            max-height: 220px;
+            overflow-y: auto;
+        }
+
+        .autocomplete-item {
+            padding: 10px 12px;
+            cursor: pointer;
+        }
+
+        .autocomplete-item:hover,
+        .autocomplete-item:focus,
+        .autocomplete-item.active,
+        .autocomplete-item[aria-selected="true"] {
+            background-color: #e2e6ea;
+        }
+
+        .autocomplete-item.active {
+            outline: 2px solid #0d6efd;
+            outline-offset: -2px;
+        }
+
+        .checkbox-area {
+            margin-top: 20px;
+            margin-bottom: 25px;
+        }
+
+        .action-area {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            flex-wrap: wrap;
+        }
+
+        .advanced-link {
+            margin-left: auto;
+            color: #6c757d;
+        }
+
+        .loading-spinner {
+            display: none;
+        }
+
+        /* Keep keyboard focus visible on interactive controls. */
+        input:focus,
+        button:focus,
+        .form-check-input:focus {
+            outline: 2px solid #0d6efd;
+            outline-offset: 2px;
+        }
+    </style>
+</head>
+
+<body>
+    <main class="container registration-container">
+        <section class="search-card" aria-label="Course registration search">
+            <div class="search-body">
+
+                <form id="registrationForm" aria-label="Course search form" novalidate>
+
+                    <!-- Subject autocomplete -->
+                    <div class="mb-3 autocomplete-container">
+                        <label for="subject" class="form-label">Subject</label>
+
+                        <input
+                            type="text"
+                            id="subject"
+                            class="form-control"
+                            autocomplete="off"
+                            placeholder="Enter subject"
+                            role="combobox"
+                            aria-autocomplete="list"
+                            aria-expanded="false"
+                            aria-controls="subjectResults"
+                            aria-required="true"
+                            aria-invalid="false"
+                            aria-describedby="subjectHelp subjectError">
+
+                        <div id="subjectHelp" class="visually-hidden">
+                            Type or select a subject from the suggestions.
+                            Use the arrow keys to navigate and Enter to select.
+                        </div>
+
+                        <div
+                            id="subjectResults"
+                            class="autocomplete-results"
+                            role="listbox"
+                            aria-label="Subject suggestions">
+
+                            <div class="autocomplete-item" role="option"
+                                aria-selected="false" tabindex="-1"
+                                data-value="Computer Science">
+                                Computer Science
+                            </div>
+
+                            <div class="autocomplete-item" role="option"
+                                aria-selected="false" tabindex="-1"
+                                data-value="Humanities">
+                                Humanities
+                            </div>
+
+                            <div class="autocomplete-item" role="option"
+                                aria-selected="false" tabindex="-1"
+                                data-value="Mathematics">
+                                Mathematics
+                            </div>
+
+                            <div class="autocomplete-item" role="option"
+                                aria-selected="false" tabindex="-1"
+                                data-value="Software Engineering">
+                                Software Engineering
+                            </div>
+                        </div>
+
+                        <div id="subjectError" class="invalid-feedback">
+                            Subject is required. Please select a subject.
+                        </div>
+                    </div>
+
+                    <!-- Course number -->
+                    <div class="mb-3">
+                        <label for="courseNumber" class="form-label">
+                            Course Number
+                        </label>
+
+                        <input
+                            type="text"
+                            id="courseNumber"
+                            class="form-control"
+                            placeholder="Enter course number"
+                            aria-describedby="courseNumberHelp">
+
+                        <div id="courseNumberHelp" class="visually-hidden">
+                            Enter the course number you want to find.
+                        </div>
+                    </div>
+
+                    <!-- Keyword -->
+                    <div class="mb-3">
+                        <label for="keyword" class="form-label">
+                            Keyword
+                        </label>
+
+                        <input
+                            type="text"
+                            id="keyword"
+                            class="form-control"
+                            placeholder="Enter keyword"
+                            aria-describedby="keywordHelp">
+
+                        <div id="keywordHelp" class="visually-hidden">
+                            Enter keywords to search course descriptions.
+                        </div>
+                    </div>
+
+                    <!-- Campus autocomplete -->
+                    <div class="mb-3 autocomplete-container">
+                        <label for="campus" class="form-label">Campus</label>
+
+                        <input
+                            type="text"
+                            id="campus"
+                            class="form-control"
+                            autocomplete="off"
+                            placeholder="Enter campus"
+                            role="combobox"
+                            aria-autocomplete="list"
+                            aria-expanded="false"
+                            aria-controls="campusResults"
+                            aria-describedby="campusHelp">
+
+                        <div id="campusHelp" class="visually-hidden">
+                            Type or select a campus from the suggestions.
+                            Use the arrow keys to navigate and Enter to select.
+                        </div>
+
+                        <div
+                            id="campusResults"
+                            class="autocomplete-results"
+                            role="listbox"
+                            aria-label="Campus suggestions">
+
+                            <div class="autocomplete-item" role="option"
+                                aria-selected="false" tabindex="-1"
+                                data-value="Ogden">
+                                Ogden
+                            </div>
+
+                            <div class="autocomplete-item" role="option"
+                                aria-selected="false" tabindex="-1"
+                                data-value="Layton">
+                                Layton
+                            </div>
+
+                            <div class="autocomplete-item" role="option"
+                                aria-selected="false" tabindex="-1"
+                                data-value="Online">
+                                Online
+                            </div>
+
+                            <div class="autocomplete-item" role="option"
+                                aria-selected="false" tabindex="-1"
+                                data-value="Farmington">
+                                Farmington
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Building autocomplete -->
+                    <div class="mb-3 autocomplete-container">
+                        <label for="building" class="form-label">
+                            Buildings
+                        </label>
+
+                        <input
+                            type="text"
+                            id="building"
+                            class="form-control"
+                            autocomplete="off"
+                            placeholder="Enter building"
+                            role="combobox"
+                            aria-autocomplete="list"
+                            aria-expanded="false"
+                            aria-controls="buildingResults"
+                            aria-describedby="buildingHelp">
+
+                        <div id="buildingHelp" class="visually-hidden">
+                            Type or select a building from the suggestions.
+                            Use the arrow keys to navigate and Enter to select.
+                        </div>
+
+                        <div
+                            id="buildingResults"
+                            class="autocomplete-results"
+                            role="listbox"
+                            aria-label="Building suggestions">
+
+                            <div class="autocomplete-item" role="option"
+                                aria-selected="false" tabindex="-1"
+                                data-value="Science and Technology Building">
+                                Science and Technology Building
+                            </div>
+
+                            <div class="autocomplete-item" role="option"
+                                aria-selected="false" tabindex="-1"
+                                data-value="Elizabeth Hall">
+                                Elizabeth Hall
+                            </div>
+
+                            <div class="autocomplete-item" role="option"
+                                aria-selected="false" tabindex="-1"
+                                data-value="Lindquist Hall">
+                                Lindquist Hall
+                            </div>
+
+                            <div class="autocomplete-item" role="option"
+                                aria-selected="false" tabindex="-1"
+                                data-value="Stewart Library">
+                                Stewart Library
+                            </div>
+
+                            <div class="autocomplete-item" role="option"
+                                aria-selected="false" tabindex="-1"
+                                data-value="Marriott Allied Health">
+                                Marriott Allied Health
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Open sections checkbox -->
+                    <fieldset class="checkbox-area border-0 p-0">
+                        <legend class="visually-hidden">
+                            Section availability
+                        </legend>
+
+                        <div class="form-check">
+                            <input
+                                class="form-check-input"
+                                type="checkbox"
+                                id="openSections"
+                                aria-describedby="openSectionsHelp">
+
+                            <label class="form-check-label" for="openSections">
+                                Open Sections Only
+                            </label>
+
+                            <div id="openSectionsHelp" class="visually-hidden">
+                                Limit results to courses with available seats.
+                            </div>
+                        </div>
+                    </fieldset>
+
+                    <!-- Search and clear buttons -->
+                    <div class="action-area">
+                        <button
+                            type="submit"
+                            id="searchButton"
+                            class="btn btn-primary"
+                            aria-describedby="networkError">
+                            Search
+                        </button>
+
+                        <button
+                            type="button"
+                            id="clearButton"
+                            class="btn btn-outline-secondary"
+                            aria-label="Clear all search fields">
+                            Clear
+                        </button>
+
+                        <div
+                            id="loadingSpinner"
+                            class="spinner-border spinner-border-sm text-primary loading-spinner"
+                            role="status"
+                            aria-live="polite">
+                            <span class="visually-hidden">Searching...</span>
+                        </div>
+
+                        <span class="advanced-link" aria-disabled="true">
+                            Advanced Search
+                        </span>
+                    </div>
+
+                    <!-- Screen reader status announcements -->
+                    <div
+                        id="searchStatus"
+                        class="visually-hidden"
+                        role="status"
+                        aria-live="polite">
+                    </div>
+
+                    <!-- Error announcements -->
+                    <div
+                        id="networkError"
+                        class="text-danger mt-2"
+                        role="alert"
+                        aria-live="assertive">
+                    </div>
+
+                </form>
+            </div>
+        </section>
+    </main>
+
+    <script>
+        function setupAutocomplete(inputId, resultsId) {
+            const input = document.getElementById(inputId);
+            const results = document.getElementById(resultsId);
+            const items = Array.from(
+                results.querySelectorAll(".autocomplete-item")
+            );
+
+            let activeIndex = -1;
+
+            // Return only suggestions that match the current filter.
+            function getVisibleItems() {
+                return items.filter(function (item) {
+                    return item.style.display !== "none";
+                });
+            }
+
+            // Open the dropdown when matching suggestions exist.
+            function openResults() {
+                const visibleItems = getVisibleItems();
+
+                if (visibleItems.length > 0) {
+                    results.style.display = "block";
+                    input.setAttribute("aria-expanded", "true");
+                } else {
+                    closeResults();
+                }
+            }
+
+            // Close the dropdown and reset the highlighted option.
+            function closeResults() {
+                results.style.display = "none";
+                input.setAttribute("aria-expanded", "false");
+                input.removeAttribute("aria-activedescendant");
+                activeIndex = -1;
+
+                items.forEach(function (item) {
+                    item.classList.remove("active");
+                    item.setAttribute("aria-selected", "false");
+                });
+            }
+
+            // Highlight a suggestion using the arrow keys.
+            function highlightItem(index) {
+                const visibleItems = getVisibleItems();
+
+                if (visibleItems.length === 0) {
+                    activeIndex = -1;
+                    input.removeAttribute("aria-activedescendant");
+                    return;
+                }
+
+                // Wrap around when reaching the first or last option.
+                activeIndex =
+                    (index + visibleItems.length) % visibleItems.length;
+
+                items.forEach(function (item) {
+                    item.classList.remove("active");
+                    item.setAttribute("aria-selected", "false");
+                });
+
+                const activeItem = visibleItems[activeIndex];
+
+                activeItem.classList.add("active");
+                activeItem.setAttribute("aria-selected", "true");
+
+                // Tell assistive technology which option is highlighted.
+                input.setAttribute(
+                    "aria-activedescendant",
+                    activeItem.id
+                );
+            }
+
+            // Select a suggestion.
+            function selectItem(item) {
+                input.value = item.dataset.value;
+
+                items.forEach(function (option) {
+                    option.classList.remove("active");
+                    option.setAttribute(
+                        "aria-selected",
+                        option === item ? "true" : "false"
+                    );
+                });
+
+                input.setAttribute("aria-invalid", "false");
+
+                if (inputId === "subject") {
+                    input.classList.remove("is-invalid");
+                }
+
+                closeResults();
+                input.focus();
+            }
+
+            // Give each suggestion a unique ID.
+            // Mouse selection keeps focus on the input.
+            items.forEach(function (item, index) {
+                item.id = resultsId + "Option" + index;
+
+                item.addEventListener("mousedown", function (event) {
+                    event.preventDefault();
+                    selectItem(item);
+                });
+            });
+
+            // Show suggestions when the input receives focus.
+            input.addEventListener("focus", function () {
+                openResults();
+            });
+
+            // Filter suggestions as the user types.
+            input.addEventListener("input", function () {
+                const searchText = input.value.toLowerCase();
+
+                items.forEach(function (item) {
+                    item.style.display =
+                        item.dataset.value.toLowerCase().includes(searchText)
+                            ? "block"
+                            : "none";
+                });
+
+                activeIndex = -1;
+
+                items.forEach(function (item) {
+                    item.classList.remove("active");
+                    item.setAttribute("aria-selected", "false");
+                });
+
+                input.removeAttribute("aria-activedescendant");
+                openResults();
+
+                if (inputId === "subject" && input.value.trim() !== "") {
+                    input.classList.remove("is-invalid");
+                    input.setAttribute("aria-invalid", "false");
+                }
+            });
+
+            // Keyboard navigation for the autocomplete dropdown.
+            input.addEventListener("keydown", function (event) {
+                const isOpen =
+                    input.getAttribute("aria-expanded") === "true";
+
+                if (event.key === "ArrowDown") {
+                    event.preventDefault();
+
+                    if (!isOpen) {
+                        openResults();
+                    }
+
+                    highlightItem(activeIndex + 1);
+
+                } else if (event.key === "ArrowUp") {
+                    event.preventDefault();
+
+                    if (!isOpen) {
+                        openResults();
+
+                        // Start at the last option when opening with Arrow Up.
+                        highlightItem(getVisibleItems().length - 1);
+                    } else {
+                        highlightItem(
+                            activeIndex <= 0
+                                ? getVisibleItems().length - 1
+                                : activeIndex - 1
+                        );
+                    }
+
+                } else if (event.key === "Enter" && isOpen) {
+                    const visibleItems = getVisibleItems();
+
+                    if (
+                        activeIndex >= 0 &&
+                        visibleItems[activeIndex]
+                    ) {
+                        event.preventDefault();
+                        selectItem(visibleItems[activeIndex]);
+                    }
+
+                } else if (event.key === "Escape") {
+                    closeResults();
+                }
+            });
+
+            // Close the dropdown when clicking outside it.
+            document.addEventListener("click", function (event) {
+                if (
+                    !results.contains(event.target) &&
+                    event.target !== input
+                ) {
+                    closeResults();
+                }
+            });
+        }
+
+        // Enable autocomplete for all three fields.
+        setupAutocomplete("subject", "subjectResults");
+        setupAutocomplete("campus", "campusResults");
+        setupAutocomplete("building", "buildingResults");
+
+        // Form elements.
+        const registrationForm =
+            document.getElementById("registrationForm");
+
+        const loadingSpinner =
+            document.getElementById("loadingSpinner");
+
+        const subject = document.getElementById("subject");
+        const subjectError = document.getElementById("subjectError");
+
+        const networkError = document.getElementById("networkError");
+        const searchStatus = document.getElementById("searchStatus");
+
+        const clearButton = document.getElementById("clearButton");
+
+        const searchButton = document.getElementById("searchButton");
+
+        // Handle form submission.
+        registrationForm.addEventListener("submit", function (event) {
+            event.preventDefault();
+
+            networkError.textContent = "";
+
+            // Validate the required Subject field.
+            if (!subject.value.trim()) {
+                subject.classList.add("is-invalid");
+                subject.setAttribute("aria-invalid", "true");
+                subjectError.style.display = "block";
+
+                searchStatus.textContent =
+                    "Search could not start. Subject is required.";
+
+                subject.focus();
+                return;
+            } else {
+                subject.classList.remove("is-invalid");
+                subject.setAttribute("aria-invalid", "false");
+                subjectError.style.display = "none";
+            }
+
+            // Show the loading state and prevent duplicate searches.
+            searchButton.disabled = true;
+            loadingSpinner.style.display = "block";
+            searchStatus.textContent = "Search started.";
+
+            // Simulate a network request before showing the error.
+            setTimeout(function () {
+                networkError.textContent =
+                    "Network error. Please try again later.";
+
+                loadingSpinner.style.display = "none";
+                searchStatus.textContent =
+                    "Search failed because of a network error.";
+            }, 1500);
+        });
+
+        // Clear all fields, dropdowns, and error messages.
+        clearButton.addEventListener("click", function () {
+            registrationForm.reset();
+
+            searchButton.disabled = false;
+            loadingSpinner.style.display = "none";
+            networkError.textContent = "";
+            searchStatus.textContent = "Search fields cleared.";
+  
+            document.querySelectorAll(".autocomplete-results")
+                .forEach(function (results) {
+                    results.style.display = "none";
+                });
+
+            document.querySelectorAll('[role="combobox"]')
+                .forEach(function (input) {
+                    input.setAttribute("aria-expanded", "false");
+                    input.removeAttribute("aria-activedescendant");
+                    input.setAttribute("aria-invalid", "false");
+                    input.classList.remove("is-invalid");
+                });
+
+            document.querySelectorAll(".autocomplete-item")
+                .forEach(function (item) {
+                    item.style.display = "block";
+                    item.classList.remove("active");
+                    item.setAttribute("aria-selected", "false");
+                });
+
+            subjectError.style.display = "none";
+        });
+    </script>
+</body>
+
+</html>

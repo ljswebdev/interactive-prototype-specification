@@ -1,0 +1,13 @@
+﻿* I need to build a medium-fidelity, interactive prototype using front-end code (HTML5, CSS3, JavaScript). I'm going to go the HTML5, CSS3 and javascript route - can you put together the code in just a .html file using bootstrap html? again just a single .html file I can edit and open with one click.
+* alright thanks! one last thing - can you like format it so each function and block of text is smushed together
+* completely remove all css, html and javascript functionality regarding search results and advanced search. its placeholder only, no actual open close or other UI functionality.
+* great! one more thing - can you add a loading spinner when I click search? just put it next to the clear button.
+* make it visible forever after the click, I can simply refresh.
+* hold up, the campus and buildings need to be autocomplete inputs just like the subject: please change…
+* disable all input fields, please.
+* two more things - make the subject autocomplete be in an error state and show a validation message that says "Subject is required. Please select a subject." and then add error validation below the serach button that says "Network error. Please try again later."
+* the arrow up / down doesnt work on the autocomplete dropdowns, can you enable that?
+* can you update my code to show the loading spinner when the user clicks the search button, as well as disable the serach button after the user clicks on it? right now, it just shows the NEtwork Error text.
+
+
+The final resulting code can be found in the index.html file in my Github repo.
